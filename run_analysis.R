@@ -26,13 +26,22 @@ read_set <- function(kind, features, activity_labels) {
     label   <- read.table(paste0("UCI HAR Dataset/", kind, "/y_", kind, ".txt"))
     subject <- read.table(paste0("UCI HAR Dataset/", kind, "/Subject_", kind, ".txt"))
     
-    ## select only the features for mean and standard deviation variables and rename 
+    ## select only the features for mean and standard deviation variables 
     localfeatures <- features %>% filter(grepl("(mean\\(\\))|(std\\(\\))",feature))      
     names(dataset) <- sub("V","", names(dataset))
     dataset <- dataset %>% select(localfeatures$label)
 
     ## rename variables 
-    names(dataset) <- tolower(gsub("-","",sub("\\(\\)", "", localfeatures$feature)))
+    featureNames <- sub("^t", "time", localfeatures$feature)
+    featureNames <- sub("^f", "frequency", featureNames)
+    featureNames <- sub("Gyro", "gyroscope", featureNames)
+    featureNames <- sub("Acc", "accelerometer", featureNames)
+    featureNames <- sub("Mag", "magnitude", featureNames)
+    featureNames <- sub("\\(\\)", "", featureNames)
+    featureNames <- gsub("-", "", featureNames)
+    featureNames <- tolower(featureNames)
+    
+    names(dataset) <- featureNames
     names(label) <- "label"
     names(subject) <- "subject"
     
